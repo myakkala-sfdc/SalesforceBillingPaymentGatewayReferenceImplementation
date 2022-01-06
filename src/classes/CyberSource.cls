@@ -177,7 +177,14 @@ public class CyberSource
                 
                 if(NULL != transactionParameterToProcess.transactionResult.getResponseCode())
                 {
-                    transactionParameterToProcess.transactionResult.setResponseCodeMessage(CyberSourceUtils.getErrorCyberSourceCode().get(transactionParameterToProcess.transactionResult.getResponseCode()));
+                    // The field where this responseCodeMessage is going to be stored won't accept more than 255.
+                    // If length is GT 255, then truncate it and store it.
+                    // This is not limited to this field also applicables to other fields as well. 
+                    // Please refer to the TransctionResult documentation for more details.
+                    String responseCodeMessage = CyberSourceUtils.getErrorCyberSourceCode().get(transactionParameterToProcess.transactionResult.getResponseCode());
+                    if(responseCodeMessage.length() > 255)
+                        responseCodeMessage = responseCodeMessage.substring(0, 255);
+                    transactionParameterToProcess.transactionResult.setResponseCodeMessage(responseCodeMessage);
                 } 
 
                 transactionParameterToProcess.transactionResult.setPaymentToken(transactionParameterToProcess.getResponseValueByKey().get(SUBSCRIPTIONID));
